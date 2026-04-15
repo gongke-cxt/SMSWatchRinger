@@ -1,0 +1,12 @@
+<resources>
+    <color name="purple_500">#6750A4</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#03DAC5</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <color name="bg_soft">#EAF6F2</color>
+    <color name="card_stroke">#DCE8E4</color>
+    <color name="danger_bg">#FDECEC</color>
+    <color name="danger_fg">#B42318</color>
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+    <color name="bg_soft">#0F1714</color>
+    <color name="card_stroke">#27312D</color>
+    <color name="danger_bg">#2A1414</color>
+    <color name="danger_fg">#FFB4AB</color>
+</resources>
+

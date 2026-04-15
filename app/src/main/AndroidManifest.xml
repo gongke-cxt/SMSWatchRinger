@@ -1,0 +1,67 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SMSWatchRinger">
+
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false"
+            android:label="@string/title_settings"
+            android:theme="@style/Theme.SMSWatchRinger" />
+
+        <activity
+            android:name=".ui.HistoryActivity"
+            android:exported="false"
+            android:label="@string/history_title"
+            android:theme="@style/Theme.SMSWatchRinger" />
+
+        <activity
+            android:name=".ui.MatchAlertActivity"
+            android:exported="false"
+            android:label="@string/match_alert_title"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.SMSWatchRinger" />
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.SMSWatchRinger">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".sms.SmsReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".alert.StopAlarmReceiver"
+            android:exported="false" />
+
+        <service
+            android:name=".alert.AlarmService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+    </application>
+
+</manifest>

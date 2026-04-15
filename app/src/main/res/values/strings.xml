@@ -1,0 +1,162 @@
+<resources>
+    <string name="app_name">短信预警</string>
+    <string name="title_settings">设置</string>
+    <string name="match_alert_title">命中提醒</string>
+
+    <string name="enable_monitoring">启用短信监控</string>
+    <string name="choose_ringtone">选择铃声</string>
+    <string name="test_alert">测试提醒</string>
+    <string name="stop_ringing">停止响铃</string>
+    <string name="history_title">命中记录</string>
+    <string name="switch_on">开</string>
+    <string name="switch_off">关</string>
+    <string name="ringtone_default">系统默认</string>
+    <string name="ringtone_unknown">未知</string>
+    <string name="tips_title">提示</string>
+    <string name="tips_body">建议把本 App 加入省电白名单/允许自启动，以免收不到短信广播（不要“强行停止”本 App）。</string>
+
+    <string name="category_rules">匹配规则</string>
+    <string name="category_alert">提醒设置</string>
+
+    <string name="home_stop_desc">紧急停止当前告警铃声</string>
+    <string name="home_sms_perm_title">短信权限</string>
+    <string name="home_sms_perm_desc_granted">已授权</string>
+    <string name="home_sms_perm_desc_grant">点击授权接收短信</string>
+    <string name="home_notif_perm_title">通知权限</string>
+    <string name="home_notif_perm_desc_granted">已授权</string>
+    <string name="home_notif_perm_desc_grant">点击授权通知提醒</string>
+    <string name="home_notif_perm_desc_not_needed">系统无需授权</string>
+    <string name="home_rules_title">规则与提醒</string>
+    <string name="home_rules_desc">关键词/排除词/正则/冷却</string>
+    <string name="home_ringtone_title">铃声</string>
+    <string name="home_ringtone_desc">当前：%1$s</string>
+    <string name="home_ringtone_desc_disabled">已关闭（当前：%1$s）</string>
+    <string name="home_test_desc">播放一次提醒（不会发短信）</string>
+    <string name="home_history_desc">最近：%1$s</string>
+    <string name="home_battery_title">省电/自启动</string>
+    <string name="home_battery_desc">建议加入白名单，避免漏收短信</string>
+
+    <string name="keywords_title">关键词</string>
+    <string name="keywords_dialog_title">关键词（每行一个；可选：关键词=&gt;播报内容 | 响铃=开/关 | 重播=1-5）</string>
+    <string name="keywords_summary">命中任意关键词即告警；支持换行/逗号/分号分隔；高级配置示例：交警=&gt;交警提醒 | 响铃=关 | 重播=3</string>
+
+    <string name="senders_title">指定号码（可选）</string>
+    <string name="senders_dialog_title">指定号码/来源（每行一个）</string>
+    <string name="senders_summary">为空表示不限制；填写后仅当短信来源包含任意一行时才告警</string>
+
+    <string name="exclude_keywords_title">排除词（可选）</string>
+    <string name="exclude_keywords_dialog_title">排除词（每行一个）</string>
+    <string name="exclude_keywords_summary">命中任意排除词将不告警（优先级高于关键词/正则）</string>
+
+    <string name="regex_title">正则（可选）</string>
+    <string name="regex_dialog_title">正则规则（每行一条）</string>
+    <string name="regex_summary">命中任意正则即告警（忽略大小写；无效正则会被忽略）</string>
+
+    <string name="alert_mode_title">告警方式</string>
+    <string name="choose_ringtone_summary">用于“连续响铃”和“测试提醒”</string>
+    <string name="ringtone_enabled_title">铃声提醒</string>
+    <string name="ringtone_enabled_summary">关闭后不播放铃声（仍可弹窗/通知/语音）</string>
+    <string name="auto_stop_title">响铃自动停止</string>
+    <string name="cooldown_title">重复告警冷却</string>
+
+    <string name="open_match_popup_title">命中弹窗</string>
+    <string name="open_match_popup_summary">命中时自动弹出前台窗口（部分机型需要允许通知弹窗/横幅）</string>
+
+    <string name="tts_enabled_title">语音播报</string>
+    <string name="tts_enabled_summary">命中时朗读提醒内容（声音效果取决于系统语音引擎）</string>
+    <string name="tts_repeat_count_title">语音重播次数</string>
+
+    <string name="tts_engine_settings_title">语音引擎设置</string>
+    <string name="tts_engine_settings_summary">进入系统“文字转语音输出”，可选择引擎/语音包/语速音调</string>
+    <string name="tts_settings_not_found_body">未找到系统“文字转语音输出”入口（不同机型入口可能不同）。\n\n请按【语音播报说明】里的路径，在系统设置中搜索“文字转语音”或“TTS”。</string>
+
+    <string name="tts_help_title">语音播报说明</string>
+    <string name="tts_help_summary">如何安装语音引擎/语音包，以及大概占用空间</string>
+    <string name="tts_help_body">安装方式（不同机型入口名称可能略有差异）：\n\n1）在本 App：进入【设置 → 提醒设置】\n- 打开【语音播报】\n- 点击【语音引擎设置】按系统提示安装/下载语音数据\n\n2）在系统设置：搜索“文字转语音”/“TTS”\n- 进入【文字转语音输出】选择引擎与中文语音包\n\n大小（仅供参考）：\n- 语音引擎 App：通常几十 MB 左右\n- 中文语音包/高质量离线语音：通常几十 MB 到几百 MB（更自然的声音通常更大）\n\n建议：优先在 Wi‑Fi 下下载；安装完成后回到本 App 点【测试提醒】验证是否能朗读。若朗读很“机械”，通常是语音包质量/引擎问题，需要在系统里更换/下载更自然的语音。 </string>
+
+    <string name="history_empty">暂无命中记录</string>
+    <string name="history_clear">清空记录</string>
+    <string name="history_confirm_clear_title">确认清空？</string>
+    <string name="history_confirm_clear_body">将删除本机所有命中记录，无法恢复。</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_clear">清空</string>
+    <string name="action_dismiss">关闭</string>
+    <string name="history_tip_tap_to_copy">点按复制全文</string>
+    <string name="toast_copied">已复制</string>
+
+    <string name="notif_match_title">短信命中关键词</string>
+    <string name="notif_test_title">测试提醒</string>
+    <string name="notif_service_title">告警响铃中</string>
+    <string name="notif_action_stop">停止响铃</string>
+
+    <string name="channel_match_name">短信告警</string>
+    <string name="channel_match_desc">命中关键词时的高优先级通知与提示音</string>
+    <string name="channel_match_silent_name">短信告警（静音）</string>
+    <string name="channel_match_silent_desc">命中关键词时的高优先级通知（静音，用于连续响铃模式）</string>
+    <string name="channel_service_name">响铃服务</string>
+    <string name="channel_service_desc">连续响铃前台服务通知</string>
+
+    <string name="perm_granted">已授权</string>
+    <string name="perm_not_granted">未授权</string>
+    <string name="perm_not_needed">无需授权</string>
+
+    <string name="status_title_running">监控中</string>
+    <string name="status_title_paused">已暂停</string>
+    <string name="status_title_need_sms">需要短信权限</string>
+    <string name="status_more_details">更多详情</string>
+    <string name="status_details_title">状态详情</string>
+
+    <string-array name="alert_mode_entries">
+        <item>仅通知</item>
+        <item>连续响铃（直到手动停止）</item>
+    </string-array>
+    <string-array name="alert_mode_values">
+        <item>notification</item>
+        <item>continuous_ringtone</item>
+    </string-array>
+
+    <string-array name="tts_repeat_entries">
+        <item>1 次</item>
+        <item>2 次</item>
+        <item>3 次</item>
+        <item>4 次</item>
+        <item>5 次</item>
+    </string-array>
+    <string-array name="tts_repeat_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="auto_stop_entries">
+        <item>不自动停止</item>
+        <item>30 秒</item>
+        <item>1 分钟</item>
+        <item>3 分钟</item>
+        <item>5 分钟</item>
+    </string-array>
+    <string-array name="auto_stop_values">
+        <item>0</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>300</item>
+    </string-array>
+
+    <string-array name="cooldown_entries">
+        <item>关闭</item>
+        <item>15 秒</item>
+        <item>30 秒</item>
+        <item>1 分钟</item>
+        <item>2 分钟</item>
+    </string-array>
+    <string-array name="cooldown_values">
+        <item>0</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+    </string-array>
+</resources>

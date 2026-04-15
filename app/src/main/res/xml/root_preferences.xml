@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/category_rules">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="enabled"
+            android:title="@string/enable_monitoring" />
+
+        <EditTextPreference
+            android:defaultValue="交警&#10;贴单&#10;违停&#10;停车"
+            android:dialogTitle="@string/keywords_dialog_title"
+            android:key="keywords"
+            android:summary="@string/keywords_summary"
+            android:title="@string/keywords_title" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dialogTitle="@string/senders_dialog_title"
+            android:key="allowed_senders"
+            android:summary="@string/senders_summary"
+            android:title="@string/senders_title" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dialogTitle="@string/exclude_keywords_dialog_title"
+            android:key="exclude_keywords"
+            android:summary="@string/exclude_keywords_summary"
+            android:title="@string/exclude_keywords_title" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dialogTitle="@string/regex_dialog_title"
+            android:key="include_regex"
+            android:summary="@string/regex_summary"
+            android:title="@string/regex_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/category_alert">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="open_match_popup"
+            android:summary="@string/open_match_popup_summary"
+            android:title="@string/open_match_popup_title" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="tts_enabled"
+            android:summary="@string/tts_enabled_summary"
+            android:title="@string/tts_enabled_title" />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:dependency="tts_enabled"
+            android:entries="@array/tts_repeat_entries"
+            android:entryValues="@array/tts_repeat_values"
+            android:key="tts_repeat_count"
+            android:summary="%s"
+            android:title="@string/tts_repeat_count_title" />
+
+        <Preference
+            android:key="tts_engine_settings"
+            android:summary="@string/tts_engine_settings_summary"
+            android:title="@string/tts_engine_settings_title" />
+
+        <Preference
+            android:key="tts_help"
+            android:summary="@string/tts_help_summary"
+            android:title="@string/tts_help_title" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="ringtone_enabled"
+            android:summary="@string/ringtone_enabled_summary"
+            android:title="@string/ringtone_enabled_title" />
+
+        <ListPreference
+            android:defaultValue="continuous_ringtone"
+            android:dependency="ringtone_enabled"
+            android:entries="@array/alert_mode_entries"
+            android:entryValues="@array/alert_mode_values"
+            android:key="alert_mode"
+            android:summary="%s"
+            android:title="@string/alert_mode_title" />
+
+        <Preference
+            android:dependency="ringtone_enabled"
+            android:key="alert_ringtone"
+            android:summary="@string/choose_ringtone_summary"
+            android:title="@string/choose_ringtone" />
+
+        <ListPreference
+            android:defaultValue="0"
+            android:dependency="ringtone_enabled"
+            android:entries="@array/auto_stop_entries"
+            android:entryValues="@array/auto_stop_values"
+            android:key="auto_stop_seconds"
+            android:summary="%s"
+            android:title="@string/auto_stop_title" />
+
+        <ListPreference
+            android:defaultValue="60"
+            android:entries="@array/cooldown_entries"
+            android:entryValues="@array/cooldown_values"
+            android:key="cooldown_seconds"
+            android:summary="%s"
+            android:title="@string/cooldown_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
