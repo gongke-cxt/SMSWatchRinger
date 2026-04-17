@@ -143,6 +143,32 @@
             android:summary="@string/callback_copy_empty"
             android:title="@string/callback_detected_numbers_title" />
 
+        <Preference
+            android:dependency="callback_enabled"
+            android:key="callback_refresh_sim1"
+            android:summary="@string/callback_refresh_sim_summary"
+            android:title="@string/callback_refresh_sim1_title" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="callback_enabled"
+            android:key="callback_phone_number_sim1"
+            android:summary="@string/callback_phone_sim_summary"
+            android:title="@string/callback_phone_sim1_title" />
+
+        <Preference
+            android:dependency="callback_enabled"
+            android:key="callback_refresh_sim2"
+            android:summary="@string/callback_refresh_sim_summary"
+            android:title="@string/callback_refresh_sim2_title" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="callback_enabled"
+            android:key="callback_phone_number_sim2"
+            android:summary="@string/callback_phone_sim_summary"
+            android:title="@string/callback_phone_sim2_title" />
+
         <EditTextPreference
             android:defaultValue=""
             android:dependency="callback_enabled"

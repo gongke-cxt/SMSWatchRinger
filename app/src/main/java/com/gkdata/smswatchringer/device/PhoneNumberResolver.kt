@@ -76,6 +76,24 @@ object PhoneNumberResolver {
             .distinctBy { it.number }
     }
 
+    fun subscriptionIdToSlotIndex(context: Context, subscriptionId: Int): Int? {
+        if (!hasAnyPermission(context)) return null
+        val subscriptionManager =
+            context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        val subscriptions =
+            runCatching { subscriptionManager.activeSubscriptionInfoList }
+                .getOrNull()
+                .orEmpty()
+        return subscriptions.firstOrNull { it.subscriptionId == subscriptionId }?.simSlotIndex
+    }
+
+    fun resolveNumberForSubscription(context: Context, subscriptionId: Int): String =
+        getSimNumbers(context)
+            .firstOrNull { it.subscriptionId == subscriptionId }
+            ?.number
+            ?.trim()
+            .orEmpty()
+
     fun resolveBestNumber(context: Context, preferredSubscriptionId: Int? = null): String {
         val candidates = getSimNumbers(context)
         if (candidates.isEmpty()) return ""
@@ -98,4 +116,3 @@ object PhoneNumberResolver {
         return candidates.first().number
     }
 }
-

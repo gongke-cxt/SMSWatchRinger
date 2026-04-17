@@ -35,12 +35,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private var callbackCopyImeiPref: Preference? = null
     private var callbackCopyPhonePref: Preference? = null
     private var callbackDetectedNumbersPref: Preference? = null
+    private var callbackRefreshSim1Pref: Preference? = null
+    private var callbackRefreshSim2Pref: Preference? = null
 
     private val sharedPrefsListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             when (key) {
                 Prefs.KEY_CALLBACK_IMEI,
                 Prefs.KEY_CALLBACK_PHONE_NUMBER,
+                Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM1,
+                Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM2,
                     -> updateCallbackCopySummaries()
             }
         }
@@ -91,6 +95,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             editText.isSingleLine = true
             editText.inputType = InputType.TYPE_CLASS_PHONE
         }
+        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM1)?.setOnBindEditTextListener { editText ->
+            editText.isSingleLine = true
+            editText.inputType = InputType.TYPE_CLASS_PHONE
+        }
+        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM2)?.setOnBindEditTextListener { editText ->
+            editText.isSingleLine = true
+            editText.inputType = InputType.TYPE_CLASS_PHONE
+        }
 
         ringtonePref = findPreference(Prefs.KEY_CONTINUOUS_RINGTONE)
         ringtonePref?.setOnPreferenceClickListener {
@@ -102,6 +114,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         callbackCopyImeiPref = findPreference("callback_copy_imei")
         callbackCopyPhonePref = findPreference("callback_copy_phone")
         callbackDetectedNumbersPref = findPreference("callback_detected_numbers")
+        callbackRefreshSim1Pref = findPreference("callback_refresh_sim1")
+        callbackRefreshSim2Pref = findPreference("callback_refresh_sim2")
 
         callbackCopyImeiPref?.setOnPreferenceClickListener {
             copyToClipboard(
@@ -144,6 +158,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
 
             showDetectedPhoneNumbersDialog()
+            true
+        }
+
+        callbackRefreshSim1Pref?.setOnPreferenceClickListener {
+            if (!ensurePhonePermissions()) return@setOnPreferenceClickListener true
+            refreshSimNumber(slotIndex = 0, targetKey = Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM1)
+            true
+        }
+        callbackRefreshSim2Pref?.setOnPreferenceClickListener {
+            if (!ensurePhonePermissions()) return@setOnPreferenceClickListener true
+            refreshSimNumber(slotIndex = 1, targetKey = Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM2)
             true
         }
         updateCallbackCopySummaries()
@@ -205,6 +230,37 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 detectedNumbers.size == 1 -> detectedNumbers.first().number
                 else -> "${detectedNumbers.size} 个号码：${detectedNumbers.joinToString(separator = " / ") { it.number }}"
             }
+    }
+
+    private fun ensurePhonePermissions(): Boolean {
+        if (PhoneNumberResolver.hasAnyPermission(requireContext())) return true
+
+        val permissions = PhoneNumberResolver.requiredPermissions()
+        val needsRequest =
+            permissions.any { perm ->
+                ContextCompat.checkSelfPermission(requireContext(), perm) != PackageManager.PERMISSION_GRANTED
+            }
+        if (needsRequest) {
+            phonePermissionsLauncher.launch(permissions.toTypedArray())
+        }
+        return false
+    }
+
+    private fun refreshSimNumber(slotIndex: Int, targetKey: String) {
+        val detected = PhoneNumberResolver.getSimNumbers(requireContext())
+        val number = detected.firstOrNull { it.simSlotIndex == slotIndex }?.number?.trim().orEmpty()
+        if (number.isBlank()) {
+            Toast.makeText(requireContext(), getString(R.string.callback_refresh_sim_not_found), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        preferenceManager.sharedPreferences
+            ?.edit()
+            ?.putString(targetKey, number)
+            ?.apply()
+
+        Toast.makeText(requireContext(), getString(R.string.callback_refresh_sim_saved, number), Toast.LENGTH_SHORT).show()
+        updateCallbackCopySummaries()
     }
 
     private fun showDetectedPhoneNumbersDialog() {

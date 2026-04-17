@@ -129,9 +129,42 @@ class Prefs(context: Context) {
     }
 
     fun callbackPhoneNumber(preferredSubscriptionId: Int? = null): String {
-        val configured = sp.getString(KEY_CALLBACK_PHONE_NUMBER, "")?.trim().orEmpty()
-        if (configured.isNotBlank()) return configured
-        return PhoneNumberResolver.resolveBestNumber(appContext, preferredSubscriptionId).trim()
+        val configuredFallback = sp.getString(KEY_CALLBACK_PHONE_NUMBER, "")?.trim().orEmpty()
+
+        if (preferredSubscriptionId != null) {
+            val slotIndex = PhoneNumberResolver.subscriptionIdToSlotIndex(appContext, preferredSubscriptionId)
+            if (slotIndex != null) {
+                callbackPhoneNumberForSlot(slotIndex)
+                    .takeIf { it.isNotBlank() }
+                    ?.let { return it }
+
+                PhoneNumberResolver.resolveNumberForSubscription(appContext, preferredSubscriptionId)
+                    .takeIf { it.isNotBlank() }
+                    ?.let { return it }
+
+                return ""
+            }
+
+            PhoneNumberResolver.resolveNumberForSubscription(appContext, preferredSubscriptionId)
+                .takeIf { it.isNotBlank() }
+                ?.let { return it }
+
+            if (configuredFallback.isNotBlank()) return configuredFallback
+            return PhoneNumberResolver.resolveBestNumber(appContext, null).trim()
+        }
+
+        if (configuredFallback.isNotBlank()) return configuredFallback
+        return PhoneNumberResolver.resolveBestNumber(appContext, null).trim()
+    }
+
+    fun callbackPhoneNumberForSlot(slotIndex: Int): String {
+        val key =
+            when (slotIndex) {
+                0 -> KEY_CALLBACK_PHONE_NUMBER_SIM1
+                1 -> KEY_CALLBACK_PHONE_NUMBER_SIM2
+                else -> return ""
+            }
+        return sp.getString(key, "")?.trim().orEmpty()
     }
 
     fun alertMode(): AlertMode =
@@ -317,6 +350,8 @@ class Prefs(context: Context) {
         const val KEY_CALLBACK_URL = "callback_url"
         const val KEY_CALLBACK_IMEI = "callback_imei"
         const val KEY_CALLBACK_PHONE_NUMBER = "callback_phone_number"
+        const val KEY_CALLBACK_PHONE_NUMBER_SIM1 = "callback_phone_number_sim1"
+        const val KEY_CALLBACK_PHONE_NUMBER_SIM2 = "callback_phone_number_sim2"
         const val KEY_ALERT_MODE = "alert_mode"
         const val KEY_CONTINUOUS_RINGTONE = "alert_ringtone"
         const val KEY_AUTO_STOP_SECONDS = "auto_stop_seconds"

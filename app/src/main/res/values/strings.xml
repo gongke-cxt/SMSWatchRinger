@@ -61,7 +61,7 @@
     <string name="callback_imei_title">设备标识（imei）</string>
     <string name="callback_imei_summary">可自定义；不填则使用 ANDROID_ID</string>
     <string name="callback_phone_title">本机号码（phoneNumber）</string>
-    <string name="callback_phone_summary">可自填；不填则自动获取（需电话权限）</string>
+    <string name="callback_phone_summary">可手填兜底；留空则自动获取。多卡优先用 SIM1/SIM2 配置</string>
 
     <string name="callback_copy_imei_title">当前设备标识（点击复制）</string>
     <string name="callback_copy_phone_title">当前本机号码（点击复制）</string>
@@ -69,6 +69,15 @@
     <string name="callback_copy_empty">未设置</string>
     <string name="callback_phone_permission_needed">未授权电话权限（点此授权）</string>
     <string name="callback_detected_numbers_empty">未检测到号码</string>
+
+    <string name="callback_refresh_sim1_title">刷新 SIM1 号码</string>
+    <string name="callback_refresh_sim2_title">刷新 SIM2 号码</string>
+    <string name="callback_refresh_sim_summary">从系统读取并写入下方</string>
+    <string name="callback_phone_sim1_title">SIM1 本机号码（phoneNumber）</string>
+    <string name="callback_phone_sim2_title">SIM2 本机号码（phoneNumber）</string>
+    <string name="callback_phone_sim_summary">可手填；留空则自动获取/发送为空</string>
+    <string name="callback_refresh_sim_not_found">未读取到该卡号，请手动填写</string>
+    <string name="callback_refresh_sim_saved">已写入：%1$s</string>
 
     <string name="alert_mode_title">告警方式</string>
     <string name="choose_ringtone_summary">用于“连续响铃”和“测试提醒”</string>
