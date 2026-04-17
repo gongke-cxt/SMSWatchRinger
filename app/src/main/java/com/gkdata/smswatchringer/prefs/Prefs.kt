@@ -18,6 +18,10 @@ class Prefs(context: Context) {
     private val appContext = context.applicationContext
     private val sp = PreferenceManager.getDefaultSharedPreferences(appContext)
 
+    init {
+        migrateCallbackUrlIfNeeded()
+    }
+
     data class KeywordRule(
         val keyword: String,
         val speakText: String? = null,
@@ -104,6 +108,13 @@ class Prefs(context: Context) {
     fun callbackEnabled(): Boolean = sp.getBoolean(KEY_CALLBACK_ENABLED, false)
 
     fun callbackUrl(): String = sp.getString(KEY_CALLBACK_URL, "") ?: ""
+
+    private fun migrateCallbackUrlIfNeeded() {
+        val current = sp.getString(KEY_CALLBACK_URL, "")?.trim().orEmpty()
+        if (current.isBlank() || current.equals(LEGACY_CALLBACK_URL, ignoreCase = true)) {
+            sp.edit().putString(KEY_CALLBACK_URL, DEFAULT_CALLBACK_URL).apply()
+        }
+    }
 
     fun callbackImei(): String {
         val configured = sp.getString(KEY_CALLBACK_IMEI, "")?.trim().orEmpty()
@@ -316,6 +327,9 @@ class Prefs(context: Context) {
         private const val DEFAULT_TTS_REPEAT_COUNT = "1"
         private const val DEFAULT_AUTO_STOP_SECONDS = "0"
         private const val DEFAULT_COOLDOWN_SECONDS = "60"
+
+        private const val LEGACY_CALLBACK_URL = "http://localhost:60002/api/SmsCallback/ZhongZhen2026"
+        private const val DEFAULT_CALLBACK_URL = "http://1.92.65.2:60002/api/SmsCallback/GKWebsetApi"
 
         private const val MAX_MATCH_HISTORY = 50
     }

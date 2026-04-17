@@ -118,12 +118,24 @@
             android:title="@string/callback_enabled_title" />
 
         <EditTextPreference
-            android:defaultValue="http://localhost:60002/api/SmsCallback/ZhongZhen2026"
+            android:defaultValue="http://1.92.65.2:60002/api/SmsCallback/GKWebsetApi"
             android:dependency="callback_enabled"
             android:dialogTitle="@string/callback_url_dialog_title"
             android:key="callback_url"
             android:summary="@string/callback_url_summary"
             android:title="@string/callback_url_title" />
+
+        <Preference
+            android:dependency="callback_enabled"
+            android:key="callback_copy_imei"
+            android:summary="@string/callback_copy_empty"
+            android:title="@string/callback_copy_imei_title" />
+
+        <Preference
+            android:dependency="callback_enabled"
+            android:key="callback_copy_phone"
+            android:summary="@string/callback_copy_empty"
+            android:title="@string/callback_copy_phone_title" />
 
         <EditTextPreference
             android:defaultValue=""

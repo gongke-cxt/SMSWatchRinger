@@ -1,6 +1,10 @@
 package com.gkdata.smswatchringer.ui
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
@@ -9,6 +13,7 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.text.InputType
 import android.view.Gravity
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
@@ -23,6 +28,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private lateinit var prefs: Prefs
 
     private var ringtonePref: Preference? = null
+    private var callbackCopyImeiPref: Preference? = null
+    private var callbackCopyPhonePref: Preference? = null
+
+    private val sharedPrefsListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            when (key) {
+                Prefs.KEY_CALLBACK_IMEI,
+                Prefs.KEY_CALLBACK_PHONE_NUMBER,
+                    -> updateCallbackCopySummaries()
+            }
+        }
 
     private val ringtonePickerLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -73,6 +89,25 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         updateRingtoneSummary()
 
+        callbackCopyImeiPref = findPreference("callback_copy_imei")
+        callbackCopyPhonePref = findPreference("callback_copy_phone")
+
+        callbackCopyImeiPref?.setOnPreferenceClickListener {
+            copyToClipboard(
+                label = getString(R.string.callback_copy_imei_title),
+                text = prefs.callbackImei(),
+            )
+            true
+        }
+        callbackCopyPhonePref?.setOnPreferenceClickListener {
+            copyToClipboard(
+                label = getString(R.string.callback_copy_phone_title),
+                text = prefs.callbackPhoneNumber(),
+            )
+            true
+        }
+        updateCallbackCopySummaries()
+
         findPreference<Preference>("tts_engine_settings")?.setOnPreferenceClickListener {
             openTtsEngineSettings()
             true
@@ -82,6 +117,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
             showTtsHelp()
             true
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(sharedPrefsListener)
+        updateCallbackCopySummaries()
+    }
+
+    override fun onPause() {
+        preferenceManager.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(sharedPrefsListener)
+        super.onPause()
     }
 
     private fun configureMultilineEditText(pref: EditTextPreference?) {
@@ -96,6 +142,27 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun updateRingtoneSummary() {
         val title = getRingtoneTitle(prefs.continuousRingtoneUri())
         ringtonePref?.summary = "${getString(R.string.choose_ringtone_summary)}\n当前：$title"
+    }
+
+    private fun updateCallbackCopySummaries() {
+        callbackCopyImeiPref?.summary =
+            prefs.callbackImei()
+                .ifBlank { getString(R.string.callback_copy_empty) }
+
+        callbackCopyPhonePref?.summary =
+            prefs.callbackPhoneNumber()
+                .ifBlank { getString(R.string.callback_copy_empty) }
+    }
+
+    private fun copyToClipboard(label: String, text: String) {
+        if (text.isBlank()) {
+            Toast.makeText(requireContext(), getString(R.string.callback_copy_empty), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText(label, text))
+        Toast.makeText(requireContext(), getString(R.string.toast_copied), Toast.LENGTH_SHORT).show()
     }
 
     private fun openRingtonePicker() {
