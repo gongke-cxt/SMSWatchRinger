@@ -53,6 +53,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val regexPref = findPreference<EditTextPreference>(Prefs.KEY_INCLUDE_REGEX)
         configureMultilineEditText(regexPref)
 
+        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_URL)?.setOnBindEditTextListener { editText ->
+            editText.isSingleLine = true
+            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+        }
+        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_IMEI)?.setOnBindEditTextListener { editText ->
+            editText.isSingleLine = true
+            editText.inputType = InputType.TYPE_CLASS_TEXT
+        }
+        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_PHONE_NUMBER)?.setOnBindEditTextListener { editText ->
+            editText.isSingleLine = true
+            editText.inputType = InputType.TYPE_CLASS_PHONE
+        }
+
         ringtonePref = findPreference(Prefs.KEY_CONTINUOUS_RINGTONE)
         ringtonePref?.setOnPreferenceClickListener {
             openRingtonePicker()

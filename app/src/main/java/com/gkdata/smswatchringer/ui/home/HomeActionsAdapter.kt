@@ -86,9 +86,9 @@ class HomeActionViewHolder(
                 binding.titleText.setTextColor(ContextCompat.getColor(context, R.color.danger_fg))
                 binding.descText.setTextColor(ContextCompat.getColor(context, R.color.danger_fg))
                 binding.descText.alpha = 0.75f
-                binding.content.minimumHeight = context.dpToPx(120)
-                binding.titleText.textSize = 18f
-                binding.descText.textSize = 13f
+                binding.content.minimumHeight = context.dpToPx(132)
+                binding.titleText.textSize = 19f
+                binding.descText.textSize = 13.5f
             }
         }
     }

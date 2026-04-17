@@ -7,6 +7,8 @@
 .gradle/
 build/
 **/build/
+.android-home/
+.gradle-user-home/
 
 local.properties
 
@@ -17,4 +19,3 @@ local.properties
 dist/
 *.apk
 *.aab
-

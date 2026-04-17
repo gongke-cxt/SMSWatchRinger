@@ -109,4 +109,35 @@
             android:title="@string/cooldown_title" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/category_push">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="callback_enabled"
+            android:summary="@string/callback_enabled_summary"
+            android:title="@string/callback_enabled_title" />
+
+        <EditTextPreference
+            android:defaultValue="http://localhost:60002/api/SmsCallback/ZhongZhen2026"
+            android:dependency="callback_enabled"
+            android:dialogTitle="@string/callback_url_dialog_title"
+            android:key="callback_url"
+            android:summary="@string/callback_url_summary"
+            android:title="@string/callback_url_title" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="callback_enabled"
+            android:key="callback_imei"
+            android:summary="@string/callback_imei_summary"
+            android:title="@string/callback_imei_title" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="callback_enabled"
+            android:key="callback_phone_number"
+            android:summary="@string/callback_phone_summary"
+            android:title="@string/callback_phone_title" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

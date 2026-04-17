@@ -2,6 +2,7 @@ package com.gkdata.smswatchringer.prefs
 
 import android.content.Context
 import android.net.Uri
+import android.provider.Settings
 import androidx.preference.PreferenceManager
 import com.gkdata.smswatchringer.sms.model.SmsEvent
 import com.gkdata.smswatchringer.sms.model.SmsSource
@@ -14,7 +15,8 @@ import kotlin.text.RegexOption.MULTILINE
 
 class Prefs(context: Context) {
 
-    private val sp = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
+    private val appContext = context.applicationContext
+    private val sp = PreferenceManager.getDefaultSharedPreferences(appContext)
 
     data class KeywordRule(
         val keyword: String,
@@ -98,6 +100,20 @@ class Prefs(context: Context) {
             ?: DEFAULT_TTS_REPEAT_COUNT.toInt()
 
     fun ringtoneEnabled(): Boolean = sp.getBoolean(KEY_RINGTONE_ENABLED, true)
+
+    fun callbackEnabled(): Boolean = sp.getBoolean(KEY_CALLBACK_ENABLED, false)
+
+    fun callbackUrl(): String = sp.getString(KEY_CALLBACK_URL, "") ?: ""
+
+    fun callbackImei(): String {
+        val configured = sp.getString(KEY_CALLBACK_IMEI, "")?.trim().orEmpty()
+        if (configured.isNotBlank()) return configured
+        return runCatching { Settings.Secure.getString(appContext.contentResolver, Settings.Secure.ANDROID_ID) }
+            .getOrNull()
+            .orEmpty()
+    }
+
+    fun callbackPhoneNumber(): String = sp.getString(KEY_CALLBACK_PHONE_NUMBER, "")?.trim().orEmpty()
 
     fun alertMode(): AlertMode =
         AlertMode.fromValue(sp.getString(KEY_ALERT_MODE, AlertMode.CONTINUOUS_RINGTONE.value))
@@ -278,6 +294,10 @@ class Prefs(context: Context) {
         const val KEY_TTS_ENABLED = "tts_enabled"
         const val KEY_TTS_REPEAT_COUNT = "tts_repeat_count"
         const val KEY_RINGTONE_ENABLED = "ringtone_enabled"
+        const val KEY_CALLBACK_ENABLED = "callback_enabled"
+        const val KEY_CALLBACK_URL = "callback_url"
+        const val KEY_CALLBACK_IMEI = "callback_imei"
+        const val KEY_CALLBACK_PHONE_NUMBER = "callback_phone_number"
         const val KEY_ALERT_MODE = "alert_mode"
         const val KEY_CONTINUOUS_RINGTONE = "alert_ringtone"
         const val KEY_AUTO_STOP_SECONDS = "auto_stop_seconds"

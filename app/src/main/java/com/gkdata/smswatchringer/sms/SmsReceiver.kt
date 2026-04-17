@@ -7,6 +7,7 @@ import android.provider.Telephony
 import android.util.Log
 import com.gkdata.smswatchringer.alert.AlertDispatcher
 import com.gkdata.smswatchringer.prefs.Prefs
+import com.gkdata.smswatchringer.push.SmsCallbackClient
 import com.gkdata.smswatchringer.sms.model.SmsEvent
 import com.gkdata.smswatchringer.sms.model.SmsSource
 
@@ -36,6 +37,11 @@ class SmsReceiver : BroadcastReceiver() {
         if (!match.isMatch()) {
             Log.d(TAG, "no match: from=$from, bodyLen=${body.length}")
             return
+        }
+
+        if (prefs.callbackEnabled() && prefs.callbackUrl().isNotBlank()) {
+            val pending = goAsync()
+            SmsCallbackClient.sendAsync(context, prefs, event) { pending.finish() }
         }
 
         if (prefs.shouldSuppressByCooldown(event)) {
