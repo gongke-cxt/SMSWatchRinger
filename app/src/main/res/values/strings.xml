@@ -57,7 +57,7 @@
     <string name="callback_enabled_summary">命中后向接口 POST JSON（短信内容会发送到服务端）</string>
     <string name="callback_url_title">接口地址</string>
     <string name="callback_url_dialog_title">接口地址（HTTP/HTTPS）</string>
-    <string name="callback_url_summary">示例：http://1.92.65.2:60002/api/SmsCallback/GKWebsetApi（手机上 localhost 是本机）</string>
+    <string name="callback_url_summary">示例：http://1.92.65.2:9508/api/SmsCallback/GKWebsetApi</string>
     <string name="callback_imei_title">设备标识（imei）</string>
     <string name="callback_imei_summary">可自定义；不填则使用 ANDROID_ID</string>
     <string name="callback_phone_title">本机号码（phoneNumber）</string>

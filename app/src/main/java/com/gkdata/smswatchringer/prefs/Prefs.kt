@@ -111,7 +111,10 @@ class Prefs(context: Context) {
 
     private fun migrateCallbackUrlIfNeeded() {
         val current = sp.getString(KEY_CALLBACK_URL, "")?.trim().orEmpty()
-        if (current.isBlank() || current.equals(LEGACY_CALLBACK_URL, ignoreCase = true)) {
+        if (current.isBlank() ||
+            current.equals(LEGACY_CALLBACK_URL_LOCALHOST, ignoreCase = true) ||
+            current.equals(LEGACY_CALLBACK_URL_DEFAULT_60002, ignoreCase = true)
+        ) {
             sp.edit().putString(KEY_CALLBACK_URL, DEFAULT_CALLBACK_URL).apply()
         }
     }
@@ -328,8 +331,9 @@ class Prefs(context: Context) {
         private const val DEFAULT_AUTO_STOP_SECONDS = "0"
         private const val DEFAULT_COOLDOWN_SECONDS = "60"
 
-        private const val LEGACY_CALLBACK_URL = "http://localhost:60002/api/SmsCallback/ZhongZhen2026"
-        private const val DEFAULT_CALLBACK_URL = "http://1.92.65.2:60002/api/SmsCallback/GKWebsetApi"
+        private const val LEGACY_CALLBACK_URL_LOCALHOST = "http://localhost:60002/api/SmsCallback/ZhongZhen2026"
+        private const val LEGACY_CALLBACK_URL_DEFAULT_60002 = "http://1.92.65.2:60002/api/SmsCallback/GKWebsetApi"
+        private const val DEFAULT_CALLBACK_URL = "http://1.92.65.2:9508/api/SmsCallback/GKWebsetApi"
 
         private const val MAX_MATCH_HISTORY = 50
     }
