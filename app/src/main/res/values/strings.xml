@@ -62,10 +62,18 @@
     <string name="callback_imei_summary">可自定义；不填则使用 ANDROID_ID</string>
     <string name="callback_copy_empty">未设置</string>
     <string name="callback_phone_permission_needed">未授权电话权限（点此授权）</string>
+    <string name="callback_phone_permission_settings_title">需要电话权限</string>
+    <string name="callback_phone_permission_settings_body">无法读取本机号码。请在系统权限设置中允许本 App 读取电话号码/电话状态后重试。\n\n注意：部分机型/运营商即使授权也可能返回空，此时请手动填写。</string>
     <string name="callback_phone_sim1_title">SIM1 本机号码（phoneNumber）</string>
     <string name="callback_phone_sim2_title">SIM2 本机号码（phoneNumber）</string>
     <string name="callback_phone_sim_summary">可手填；留空则自动获取/发送为空</string>
     <string name="callback_refresh_sim_not_found">未读取到该卡号，请手动填写</string>
+    <string name="callback_test_connectivity">测试连通性</string>
+    <string name="callback_test_empty_url">请先填写接口地址</string>
+    <string name="callback_test_in_progress">测试中…</string>
+    <string name="callback_test_ok">连通成功（HTTP %1$d）</string>
+    <string name="callback_test_fail_http">连通失败（HTTP %1$d）</string>
+    <string name="callback_test_fail_error">连通失败：%1$s</string>
 
     <string name="alert_mode_title">告警方式</string>
     <string name="choose_ringtone_summary">用于“连续响铃”和“测试提醒”</string>
@@ -96,6 +104,8 @@
     <string name="action_cancel">取消</string>
     <string name="action_clear">清空</string>
     <string name="action_dismiss">关闭</string>
+    <string name="action_fetch">获取</string>
+    <string name="action_open_settings">打开设置</string>
     <string name="history_tip_tap_to_copy">点按复制全文</string>
     <string name="toast_copied">已复制</string>
 

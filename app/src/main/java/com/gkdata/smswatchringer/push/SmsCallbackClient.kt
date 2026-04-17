@@ -1,6 +1,5 @@
 package com.gkdata.smswatchringer.push
 
-import android.content.Context
 import android.util.Log
 import com.gkdata.smswatchringer.prefs.Prefs
 import com.gkdata.smswatchringer.sms.model.SmsEvent
@@ -19,6 +18,34 @@ object SmsCallbackClient {
         Executors.newSingleThreadExecutor { runnable ->
             Thread(runnable, "sms-callback").apply { isDaemon = true }
         }
+
+    data class ProbeResult(
+        val ok: Boolean,
+        val code: Int? = null,
+        val message: String? = null,
+    )
+
+    fun probeAsync(
+        endpoint: String,
+        prefs: Prefs,
+        event: SmsEvent,
+        onResult: (ProbeResult) -> Unit,
+    ) {
+        val normalized = endpoint.trim()
+        if (normalized.isBlank()) {
+            onResult(ProbeResult(ok = false, message = "empty endpoint"))
+            return
+        }
+
+        executor.execute {
+            try {
+                onResult(probeNow(prefs, event, normalized))
+            } catch (t: Throwable) {
+                Log.w(TAG, "probe failed: ${t.message}", t)
+                onResult(ProbeResult(ok = false, message = t.message))
+            }
+        }
+    }
 
     fun sendAsync(
         prefs: Prefs,
@@ -72,6 +99,42 @@ object SmsCallbackClient {
         }
 
         connection.disconnect()
+    }
+
+    private fun probeNow(
+        prefs: Prefs,
+        event: SmsEvent,
+        endpoint: String,
+    ): ProbeResult {
+        val payload = buildPayload(prefs, event)
+        val connection = (URL(endpoint).openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            setRequestProperty("accept", "*/*")
+            setRequestProperty("Content-Type", "application/json")
+            connectTimeout = 6000
+            readTimeout = 6000
+            doOutput = true
+        }
+
+        try {
+            connection.outputStream.use { out ->
+                out.write(payload.toByteArray(Charsets.UTF_8))
+            }
+
+            val code = connection.responseCode
+            if (code in 200..299) return ProbeResult(ok = true, code = code)
+
+            val errorBody =
+                runCatching { connection.errorStream?.bufferedReader(Charsets.UTF_8)?.readText() }
+                    .getOrNull()
+                    ?.trim()
+                    .orEmpty()
+                    .takeIf { it.isNotBlank() }
+
+            return ProbeResult(ok = false, code = code, message = errorBody)
+        } finally {
+            connection.disconnect()
+        }
     }
 
     private fun buildPayload(prefs: Prefs, event: SmsEvent): String {
