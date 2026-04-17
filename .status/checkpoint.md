@@ -4,6 +4,5 @@
 - 手机端验证服务转发：
   - 设置 → 信息转发设置：开启「推送命中到服务」
   - 确认 `callback_url` 为 `http://1.92.65.2:9508/api/SmsCallback/GKWebsetApi`
-  - 点「当前本机号码」或「检测到的号码」授权电话权限（用于自动获取 phoneNumber，多卡按 subscriptionId 匹配）
-  - 点「刷新 SIM1 / 刷新 SIM2」尝试写入号码，读不到就手填 SIM1/SIM2
+  - 点「SIM1 号码 / SIM2 号码」授权电话权限（可自动获取；读不到就手填）
   - 发一条包含关键词的短信，服务端应收到 POST JSON

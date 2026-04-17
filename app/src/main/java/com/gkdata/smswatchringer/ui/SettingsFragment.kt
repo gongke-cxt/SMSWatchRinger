@@ -1,9 +1,5 @@
 package com.gkdata.smswatchringer.ui
 
-import android.Manifest
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.SharedPreferences
@@ -15,7 +11,6 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.text.InputType
 import android.view.Gravity
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.preference.EditTextPreference
@@ -32,20 +27,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private lateinit var prefs: Prefs
 
     private var ringtonePref: Preference? = null
-    private var callbackCopyImeiPref: Preference? = null
-    private var callbackCopyPhonePref: Preference? = null
-    private var callbackDetectedNumbersPref: Preference? = null
-    private var callbackRefreshSim1Pref: Preference? = null
-    private var callbackRefreshSim2Pref: Preference? = null
+    private var callbackUrlPref: EditTextPreference? = null
+    private var callbackImeiPref: EditTextPreference? = null
+    private var callbackSim1Pref: EditTextPreference? = null
+    private var callbackSim2Pref: EditTextPreference? = null
 
     private val sharedPrefsListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             when (key) {
+                Prefs.KEY_CALLBACK_URL,
                 Prefs.KEY_CALLBACK_IMEI,
-                Prefs.KEY_CALLBACK_PHONE_NUMBER,
                 Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM1,
                 Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM2,
-                    -> updateCallbackCopySummaries()
+                    -> updateCallbackSummaries()
             }
         }
 
@@ -63,7 +57,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private val phonePermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
-            updateCallbackCopySummaries()
+            updateCallbackSummaries()
         }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -83,25 +77,43 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val regexPref = findPreference<EditTextPreference>(Prefs.KEY_INCLUDE_REGEX)
         configureMultilineEditText(regexPref)
 
-        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_URL)?.setOnBindEditTextListener { editText ->
+        callbackUrlPref = findPreference(Prefs.KEY_CALLBACK_URL)
+        callbackImeiPref = findPreference(Prefs.KEY_CALLBACK_IMEI)
+        callbackSim1Pref = findPreference(Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM1)
+        callbackSim2Pref = findPreference(Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM2)
+
+        callbackUrlPref?.setOnBindEditTextListener { editText ->
             editText.isSingleLine = true
             editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
         }
-        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_IMEI)?.setOnBindEditTextListener { editText ->
+        callbackImeiPref?.setOnBindEditTextListener { editText ->
             editText.isSingleLine = true
             editText.inputType = InputType.TYPE_CLASS_TEXT
         }
-        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_PHONE_NUMBER)?.setOnBindEditTextListener { editText ->
+        callbackSim1Pref?.setOnBindEditTextListener { editText ->
             editText.isSingleLine = true
             editText.inputType = InputType.TYPE_CLASS_PHONE
+
+            if (callbackSim1Pref?.text.isNullOrBlank()) {
+                val detected = resolveDetectedNumberForSlot(slotIndex = 0)
+                if (detected.isNotBlank()) editText.setText(detected)
+            }
         }
-        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM1)?.setOnBindEditTextListener { editText ->
+        callbackSim2Pref?.setOnBindEditTextListener { editText ->
             editText.isSingleLine = true
             editText.inputType = InputType.TYPE_CLASS_PHONE
+
+            if (callbackSim2Pref?.text.isNullOrBlank()) {
+                val detected = resolveDetectedNumberForSlot(slotIndex = 1)
+                if (detected.isNotBlank()) editText.setText(detected)
+            }
         }
-        findPreference<EditTextPreference>(Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM2)?.setOnBindEditTextListener { editText ->
-            editText.isSingleLine = true
-            editText.inputType = InputType.TYPE_CLASS_PHONE
+
+        callbackSim1Pref?.setOnPreferenceClickListener {
+            ensurePhonePermissions()
+        }
+        callbackSim2Pref?.setOnPreferenceClickListener {
+            ensurePhonePermissions()
         }
 
         ringtonePref = findPreference(Prefs.KEY_CONTINUOUS_RINGTONE)
@@ -111,67 +123,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         updateRingtoneSummary()
 
-        callbackCopyImeiPref = findPreference("callback_copy_imei")
-        callbackCopyPhonePref = findPreference("callback_copy_phone")
-        callbackDetectedNumbersPref = findPreference("callback_detected_numbers")
-        callbackRefreshSim1Pref = findPreference("callback_refresh_sim1")
-        callbackRefreshSim2Pref = findPreference("callback_refresh_sim2")
-
-        callbackCopyImeiPref?.setOnPreferenceClickListener {
-            copyToClipboard(
-                label = getString(R.string.callback_copy_imei_title),
-                text = prefs.callbackImei(),
-            )
-            true
-        }
-        callbackCopyPhonePref?.setOnPreferenceClickListener {
-            if (!PhoneNumberResolver.hasAnyPermission(requireContext())) {
-                val permissions = PhoneNumberResolver.requiredPermissions()
-                val needsRequest =
-                    permissions.any { perm ->
-                        ContextCompat.checkSelfPermission(requireContext(), perm) != PackageManager.PERMISSION_GRANTED
-                    }
-                if (needsRequest) {
-                    phonePermissionsLauncher.launch(permissions.toTypedArray())
-                    return@setOnPreferenceClickListener true
-                }
-            }
-
-            copyToClipboard(
-                label = getString(R.string.callback_copy_phone_title),
-                text = prefs.callbackPhoneNumber(),
-            )
-            true
-        }
-
-        callbackDetectedNumbersPref?.setOnPreferenceClickListener {
-            if (!PhoneNumberResolver.hasAnyPermission(requireContext())) {
-                val permissions = PhoneNumberResolver.requiredPermissions()
-                val needsRequest =
-                    permissions.any { perm ->
-                        ContextCompat.checkSelfPermission(requireContext(), perm) != PackageManager.PERMISSION_GRANTED
-                    }
-                if (needsRequest) {
-                    phonePermissionsLauncher.launch(permissions.toTypedArray())
-                    return@setOnPreferenceClickListener true
-                }
-            }
-
-            showDetectedPhoneNumbersDialog()
-            true
-        }
-
-        callbackRefreshSim1Pref?.setOnPreferenceClickListener {
-            if (!ensurePhonePermissions()) return@setOnPreferenceClickListener true
-            refreshSimNumber(slotIndex = 0, targetKey = Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM1)
-            true
-        }
-        callbackRefreshSim2Pref?.setOnPreferenceClickListener {
-            if (!ensurePhonePermissions()) return@setOnPreferenceClickListener true
-            refreshSimNumber(slotIndex = 1, targetKey = Prefs.KEY_CALLBACK_PHONE_NUMBER_SIM2)
-            true
-        }
-        updateCallbackCopySummaries()
+        updateCallbackSummaries()
 
         findPreference<Preference>("tts_engine_settings")?.setOnPreferenceClickListener {
             openTtsEngineSettings()
@@ -187,7 +139,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onResume() {
         super.onResume()
         preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(sharedPrefsListener)
-        updateCallbackCopySummaries()
+        updateCallbackSummaries()
     }
 
     override fun onPause() {
@@ -209,31 +161,45 @@ class SettingsFragment : PreferenceFragmentCompat() {
         ringtonePref?.summary = "${getString(R.string.choose_ringtone_summary)}\n当前：$title"
     }
 
-    private fun updateCallbackCopySummaries() {
-        callbackCopyImeiPref?.summary =
+    private fun updateCallbackSummaries() {
+        callbackUrlPref?.summary =
+            callbackUrlPref
+                ?.text
+                ?.trim()
+                .orEmpty()
+                .ifBlank { getString(R.string.callback_copy_empty) }
+
+        callbackImeiPref?.summary =
             prefs.callbackImei()
                 .ifBlank { getString(R.string.callback_copy_empty) }
 
-        val phoneNumber = prefs.callbackPhoneNumber()
-        callbackCopyPhonePref?.summary =
-            when {
-                phoneNumber.isNotBlank() -> phoneNumber
-                !PhoneNumberResolver.hasAnyPermission(requireContext()) -> getString(R.string.callback_phone_permission_needed)
-                else -> getString(R.string.callback_copy_empty)
-            }
+        callbackSim1Pref?.summary =
+            resolvePhoneSummary(slotIndex = 0, configured = callbackSim1Pref?.text.orEmpty())
 
-        val detectedNumbers = PhoneNumberResolver.getSimNumbers(requireContext())
-        callbackDetectedNumbersPref?.summary =
-            when {
-                !PhoneNumberResolver.hasAnyPermission(requireContext()) -> getString(R.string.callback_phone_permission_needed)
-                detectedNumbers.isEmpty() -> getString(R.string.callback_detected_numbers_empty)
-                detectedNumbers.size == 1 -> detectedNumbers.first().number
-                else -> "${detectedNumbers.size} 个号码：${detectedNumbers.joinToString(separator = " / ") { it.number }}"
-            }
+        callbackSim2Pref?.summary =
+            resolvePhoneSummary(slotIndex = 1, configured = callbackSim2Pref?.text.orEmpty())
     }
 
+    private fun resolvePhoneSummary(slotIndex: Int, configured: String): String {
+        val configuredValue = configured.trim()
+        if (configuredValue.isNotBlank()) return configuredValue
+        if (!PhoneNumberResolver.hasAnyPermission(requireContext())) return getString(R.string.callback_phone_permission_needed)
+
+        val detected = resolveDetectedNumberForSlot(slotIndex)
+        if (detected.isNotBlank()) return detected
+
+        return getString(R.string.callback_refresh_sim_not_found)
+    }
+
+    private fun resolveDetectedNumberForSlot(slotIndex: Int): String =
+        PhoneNumberResolver.getSimNumbers(requireContext())
+            .firstOrNull { it.simSlotIndex == slotIndex }
+            ?.number
+            ?.trim()
+            .orEmpty()
+
     private fun ensurePhonePermissions(): Boolean {
-        if (PhoneNumberResolver.hasAnyPermission(requireContext())) return true
+        if (PhoneNumberResolver.hasAnyPermission(requireContext())) return false
 
         val permissions = PhoneNumberResolver.requiredPermissions()
         val needsRequest =
@@ -242,63 +208,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         if (needsRequest) {
             phonePermissionsLauncher.launch(permissions.toTypedArray())
+            return true
         }
         return false
-    }
-
-    private fun refreshSimNumber(slotIndex: Int, targetKey: String) {
-        val detected = PhoneNumberResolver.getSimNumbers(requireContext())
-        val number = detected.firstOrNull { it.simSlotIndex == slotIndex }?.number?.trim().orEmpty()
-        if (number.isBlank()) {
-            Toast.makeText(requireContext(), getString(R.string.callback_refresh_sim_not_found), Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        preferenceManager.sharedPreferences
-            ?.edit()
-            ?.putString(targetKey, number)
-            ?.apply()
-
-        Toast.makeText(requireContext(), getString(R.string.callback_refresh_sim_saved, number), Toast.LENGTH_SHORT).show()
-        updateCallbackCopySummaries()
-    }
-
-    private fun showDetectedPhoneNumbersDialog() {
-        val detected = PhoneNumberResolver.getSimNumbers(requireContext())
-        if (detected.isEmpty()) {
-            Toast.makeText(requireContext(), getString(R.string.callback_detected_numbers_empty), Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val items =
-            detected.map { sim ->
-                val slotText = "SIM${sim.simSlotIndex + 1}"
-                val carrierText = sim.carrierName?.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()
-                "$slotText$carrierText：${sim.number}"
-            }.toTypedArray()
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.callback_detected_numbers_title)
-            .setItems(items) { _, which ->
-                val sim = detected.getOrNull(which) ?: return@setItems
-                copyToClipboard(
-                    label = "SIM${sim.simSlotIndex + 1}",
-                    text = sim.number,
-                )
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    private fun copyToClipboard(label: String, text: String) {
-        if (text.isBlank()) {
-            Toast.makeText(requireContext(), getString(R.string.callback_copy_empty), Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText(label, text))
-        Toast.makeText(requireContext(), getString(R.string.toast_copied), Toast.LENGTH_SHORT).show()
     }
 
     private fun openRingtonePicker() {
