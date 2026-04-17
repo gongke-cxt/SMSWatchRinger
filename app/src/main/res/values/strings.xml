@@ -65,8 +65,10 @@
 
     <string name="callback_copy_imei_title">当前设备标识（点击复制）</string>
     <string name="callback_copy_phone_title">当前本机号码（点击复制）</string>
+    <string name="callback_detected_numbers_title">检测到的号码（点开查看/复制）</string>
     <string name="callback_copy_empty">未设置</string>
     <string name="callback_phone_permission_needed">未授权电话权限（点此授权）</string>
+    <string name="callback_detected_numbers_empty">未检测到号码</string>
 
     <string name="alert_mode_title">告警方式</string>
     <string name="choose_ringtone_summary">用于“连续响铃”和“测试提醒”</string>

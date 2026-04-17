@@ -34,6 +34,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private var ringtonePref: Preference? = null
     private var callbackCopyImeiPref: Preference? = null
     private var callbackCopyPhonePref: Preference? = null
+    private var callbackDetectedNumbersPref: Preference? = null
 
     private val sharedPrefsListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
@@ -100,6 +101,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         callbackCopyImeiPref = findPreference("callback_copy_imei")
         callbackCopyPhonePref = findPreference("callback_copy_phone")
+        callbackDetectedNumbersPref = findPreference("callback_detected_numbers")
 
         callbackCopyImeiPref?.setOnPreferenceClickListener {
             copyToClipboard(
@@ -125,6 +127,23 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 label = getString(R.string.callback_copy_phone_title),
                 text = prefs.callbackPhoneNumber(),
             )
+            true
+        }
+
+        callbackDetectedNumbersPref?.setOnPreferenceClickListener {
+            if (!PhoneNumberResolver.hasAnyPermission(requireContext())) {
+                val permissions = PhoneNumberResolver.requiredPermissions()
+                val needsRequest =
+                    permissions.any { perm ->
+                        ContextCompat.checkSelfPermission(requireContext(), perm) != PackageManager.PERMISSION_GRANTED
+                    }
+                if (needsRequest) {
+                    phonePermissionsLauncher.launch(permissions.toTypedArray())
+                    return@setOnPreferenceClickListener true
+                }
+            }
+
+            showDetectedPhoneNumbersDialog()
             true
         }
         updateCallbackCopySummaries()
@@ -177,6 +196,42 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 !PhoneNumberResolver.hasAnyPermission(requireContext()) -> getString(R.string.callback_phone_permission_needed)
                 else -> getString(R.string.callback_copy_empty)
             }
+
+        val detectedNumbers = PhoneNumberResolver.getSimNumbers(requireContext())
+        callbackDetectedNumbersPref?.summary =
+            when {
+                !PhoneNumberResolver.hasAnyPermission(requireContext()) -> getString(R.string.callback_phone_permission_needed)
+                detectedNumbers.isEmpty() -> getString(R.string.callback_detected_numbers_empty)
+                detectedNumbers.size == 1 -> detectedNumbers.first().number
+                else -> "${detectedNumbers.size} 个号码：${detectedNumbers.joinToString(separator = " / ") { it.number }}"
+            }
+    }
+
+    private fun showDetectedPhoneNumbersDialog() {
+        val detected = PhoneNumberResolver.getSimNumbers(requireContext())
+        if (detected.isEmpty()) {
+            Toast.makeText(requireContext(), getString(R.string.callback_detected_numbers_empty), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val items =
+            detected.map { sim ->
+                val slotText = "SIM${sim.simSlotIndex + 1}"
+                val carrierText = sim.carrierName?.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()
+                "$slotText$carrierText：${sim.number}"
+            }.toTypedArray()
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.callback_detected_numbers_title)
+            .setItems(items) { _, which ->
+                val sim = detected.getOrNull(which) ?: return@setItems
+                copyToClipboard(
+                    label = "SIM${sim.simSlotIndex + 1}",
+                    text = sim.number,
+                )
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun copyToClipboard(label: String, text: String) {
