@@ -61,11 +61,12 @@
     <string name="callback_imei_title">设备标识（imei）</string>
     <string name="callback_imei_summary">可自定义；不填则使用 ANDROID_ID</string>
     <string name="callback_phone_title">本机号码（phoneNumber）</string>
-    <string name="callback_phone_summary">可自填；不填则发送空字符串</string>
+    <string name="callback_phone_summary">可自填；不填则自动获取（需电话权限）</string>
 
     <string name="callback_copy_imei_title">当前设备标识（点击复制）</string>
     <string name="callback_copy_phone_title">当前本机号码（点击复制）</string>
     <string name="callback_copy_empty">未设置</string>
+    <string name="callback_phone_permission_needed">未授权电话权限（点此授权）</string>
 
     <string name="alert_mode_title">告警方式</string>
     <string name="choose_ringtone_summary">用于“连续响铃”和“测试提醒”</string>

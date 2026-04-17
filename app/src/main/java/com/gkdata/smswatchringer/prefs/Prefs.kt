@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.Settings
 import androidx.preference.PreferenceManager
+import com.gkdata.smswatchringer.device.PhoneNumberResolver
 import com.gkdata.smswatchringer.sms.model.SmsEvent
 import com.gkdata.smswatchringer.sms.model.SmsSource
 import org.json.JSONArray
@@ -127,7 +128,11 @@ class Prefs(context: Context) {
             .orEmpty()
     }
 
-    fun callbackPhoneNumber(): String = sp.getString(KEY_CALLBACK_PHONE_NUMBER, "")?.trim().orEmpty()
+    fun callbackPhoneNumber(preferredSubscriptionId: Int? = null): String {
+        val configured = sp.getString(KEY_CALLBACK_PHONE_NUMBER, "")?.trim().orEmpty()
+        if (configured.isNotBlank()) return configured
+        return PhoneNumberResolver.resolveBestNumber(appContext, preferredSubscriptionId).trim()
+    }
 
     fun alertMode(): AlertMode =
         AlertMode.fromValue(sp.getString(KEY_ALERT_MODE, AlertMode.CONTINUOUS_RINGTONE.value))

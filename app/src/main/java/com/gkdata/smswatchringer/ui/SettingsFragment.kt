@@ -1,9 +1,11 @@
 package com.gkdata.smswatchringer.ui
 
+import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.SharedPreferences
 import android.media.RingtoneManager
 import android.net.Uri
@@ -15,11 +17,13 @@ import android.text.InputType
 import android.view.Gravity
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.gkdata.smswatchringer.R
 import com.gkdata.smswatchringer.alert.NotificationHelper
+import com.gkdata.smswatchringer.device.PhoneNumberResolver
 import com.gkdata.smswatchringer.prefs.Prefs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -50,6 +54,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
             prefs.setContinuousRingtoneUri(pickedUri)
             NotificationHelper.ensureChannels(requireContext(), pickedUri)
             updateRingtoneSummary()
+        }
+
+    private val phonePermissionsLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
+            updateCallbackCopySummaries()
         }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -100,6 +109,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
         callbackCopyPhonePref?.setOnPreferenceClickListener {
+            if (!PhoneNumberResolver.hasAnyPermission(requireContext())) {
+                val permissions = PhoneNumberResolver.requiredPermissions()
+                val needsRequest =
+                    permissions.any { perm ->
+                        ContextCompat.checkSelfPermission(requireContext(), perm) != PackageManager.PERMISSION_GRANTED
+                    }
+                if (needsRequest) {
+                    phonePermissionsLauncher.launch(permissions.toTypedArray())
+                    return@setOnPreferenceClickListener true
+                }
+            }
+
             copyToClipboard(
                 label = getString(R.string.callback_copy_phone_title),
                 text = prefs.callbackPhoneNumber(),
@@ -149,9 +170,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
             prefs.callbackImei()
                 .ifBlank { getString(R.string.callback_copy_empty) }
 
+        val phoneNumber = prefs.callbackPhoneNumber()
         callbackCopyPhonePref?.summary =
-            prefs.callbackPhoneNumber()
-                .ifBlank { getString(R.string.callback_copy_empty) }
+            when {
+                phoneNumber.isNotBlank() -> phoneNumber
+                !PhoneNumberResolver.hasAnyPermission(requireContext()) -> getString(R.string.callback_phone_permission_needed)
+                else -> getString(R.string.callback_copy_empty)
+            }
     }
 
     private fun copyToClipboard(label: String, text: String) {

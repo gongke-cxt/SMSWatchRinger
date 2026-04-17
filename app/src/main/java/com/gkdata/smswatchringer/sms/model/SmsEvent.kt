@@ -5,5 +5,5 @@ data class SmsEvent(
     val body: String,
     val receivedAtMillis: Long,
     val source: SmsSource,
+    val subscriptionId: Int? = null,
 )
-

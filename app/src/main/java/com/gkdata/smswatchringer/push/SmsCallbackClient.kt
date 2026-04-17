@@ -21,7 +21,6 @@ object SmsCallbackClient {
         }
 
     fun sendAsync(
-        context: Context,
         prefs: Prefs,
         event: SmsEvent,
         onDone: (() -> Unit)? = null,
@@ -32,10 +31,9 @@ object SmsCallbackClient {
             return
         }
 
-        val appContext = context.applicationContext
         executor.execute {
             try {
-                sendNow(appContext, prefs, event, endpoint)
+                sendNow(prefs, event, endpoint)
             } catch (t: Throwable) {
                 Log.w(TAG, "callback failed: ${t.message}", t)
             } finally {
@@ -45,12 +43,11 @@ object SmsCallbackClient {
     }
 
     private fun sendNow(
-        context: Context,
         prefs: Prefs,
         event: SmsEvent,
         endpoint: String,
     ) {
-        val payload = buildPayload(context, prefs, event)
+        val payload = buildPayload(prefs, event)
         val connection = (URL(endpoint).openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
             setRequestProperty("accept", "*/*")
@@ -77,10 +74,10 @@ object SmsCallbackClient {
         connection.disconnect()
     }
 
-    private fun buildPayload(context: Context, prefs: Prefs, event: SmsEvent): String {
+    private fun buildPayload(prefs: Prefs, event: SmsEvent): String {
         val json = JSONObject()
             .put("imei", prefs.callbackImei())
-            .put("phoneNumber", prefs.callbackPhoneNumber())
+            .put("phoneNumber", prefs.callbackPhoneNumber(event.subscriptionId))
             .put("senderNumber", event.from)
             .put("content", event.body)
             .put("receiveTime", formatUtc(event.receivedAtMillis))
@@ -95,4 +92,3 @@ object SmsCallbackClient {
 
     private const val TAG = "SmsCallbackClient"
 }
-
