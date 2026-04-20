@@ -11,8 +11,8 @@ android {
         applicationId = "com.gkdata.smswatchringer"
         minSdk = 23
         targetSdk = 34
-        versionCode = 26
-        versionName = "0.1.26"
+        versionCode = 27
+        versionName = "0.1.27"
     }
 
     buildFeatures {

@@ -40,14 +40,14 @@ class SmsReceiver : BroadcastReceiver() {
         )
 
         val match = prefs.matchResult(event)
-        if (!match.isMatch()) {
-            Log.d(TAG, "no match: from=$from, bodyLen=${body.length}")
-            return
-        }
-
-        if (prefs.callbackEnabled() && prefs.callbackUrl().isNotBlank()) {
+        if (prefs.callbackEnabled() && prefs.callbackUrl().isNotBlank() && match.shouldForward()) {
             val pending = goAsync()
             SmsCallbackClient.sendAsync(prefs, event) { pending.finish() }
+        }
+
+        if (!match.isMatch()) {
+            Log.d(TAG, "no match (forwardOnly=${match.forwardAll}): from=$from, bodyLen=${body.length}")
+            return
         }
 
         if (prefs.shouldSuppressByCooldown(event)) {

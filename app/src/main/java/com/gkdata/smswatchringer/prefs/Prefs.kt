@@ -39,8 +39,10 @@ class Prefs(context: Context) {
     data class MatchResult(
         val matchedKeywords: List<String>,
         val matchedRegex: List<String>,
+        val forwardAll: Boolean = false,
     ) {
         fun isMatch(): Boolean = matchedKeywords.isNotEmpty() || matchedRegex.isNotEmpty()
+        fun shouldForward(): Boolean = forwardAll || isMatch()
     }
 
     data class MatchRecord(
@@ -220,7 +222,7 @@ class Prefs(context: Context) {
         if (allowedSenders.isNotEmpty()) {
             val fromNormalized = normalizeSender(event.from)
             val ok = allowedSenders.any { fromNormalized.contains(normalizeSender(it)) }
-            if (!ok) return MatchResult(emptyList(), emptyList())
+            if (!ok) return MatchResult(emptyList(), emptyList(), forwardAll = false)
         }
 
         val haystack = "${event.from}\n${event.body}".lowercase(Locale.ROOT)
@@ -228,15 +230,17 @@ class Prefs(context: Context) {
         val exclude = excludeKeywordsList()
         if (exclude.isNotEmpty()) {
             val excluded = exclude.any { haystack.contains(it.lowercase(Locale.ROOT)) }
-            if (excluded) return MatchResult(emptyList(), emptyList())
+            if (excluded) return MatchResult(emptyList(), emptyList(), forwardAll = false)
         }
 
         val keywords = keywordsList()
+        val forwardAll = keywords.any { it == "*" }
+        val keywordsToCheck = keywords.filterNot { it == "*" }
         val matchedKeywords =
-            if (keywords.isEmpty()) {
+            if (keywordsToCheck.isEmpty()) {
                 emptyList()
             } else {
-                keywords.filter { haystack.contains(it.lowercase(Locale.ROOT)) }
+                keywordsToCheck.filter { haystack.contains(it.lowercase(Locale.ROOT)) }
             }
 
         val regexRules = includeRegexList()
@@ -252,7 +256,7 @@ class Prefs(context: Context) {
                 }
             }
 
-        return MatchResult(matchedKeywords = matchedKeywords, matchedRegex = matchedRegex)
+        return MatchResult(matchedKeywords = matchedKeywords, matchedRegex = matchedRegex, forwardAll = forwardAll)
     }
 
     private fun normalizeSender(text: String): String =

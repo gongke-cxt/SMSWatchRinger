@@ -38,8 +38,8 @@
     <string name="home_battery_desc">建议加入白名单，避免漏收短信</string>
 
     <string name="keywords_title">关键词</string>
-    <string name="keywords_dialog_title">关键词（每行一个；可选：关键词=&gt;播报内容 | 响铃=开/关 | 重播=1-5）</string>
-    <string name="keywords_summary">命中任意关键词即告警；支持换行/逗号/分号分隔；高级配置示例：交警=&gt;交警提醒 | 响铃=关 | 重播=3</string>
+    <string name="keywords_dialog_title">关键词（每行一个；可选：关键词=&gt;播报内容 | 响铃=开/关 | 重播=1-5；特殊：* 转发所有短信）</string>
+    <string name="keywords_summary">命中任意关键词即告警；特殊：关键词含 * 时转发所有短信到服务（不告警）；支持换行/逗号/分号分隔；示例：交警=&gt;交警提醒 | 响铃=关 | 重播=3</string>
 
     <string name="senders_title">指定号码（可选）</string>
     <string name="senders_dialog_title">指定号码/来源（每行一个）</string>
@@ -54,7 +54,7 @@
     <string name="regex_summary">命中任意正则即告警（忽略大小写；无效正则会被忽略）</string>
 
     <string name="callback_enabled_title">推送命中到服务</string>
-    <string name="callback_enabled_summary">命中后向接口 POST JSON（短信内容会发送到服务端）</string>
+    <string name="callback_enabled_summary">命中后向接口 POST JSON（短信内容会发送到服务端；关键词含 * 时转发所有短信）</string>
     <string name="callback_url_title">接口地址</string>
     <string name="callback_url_dialog_title">接口地址（HTTP/HTTPS）</string>
     <string name="callback_url_summary">示例：http://1.92.65.2:9508/api/SmsCallback/GKWebsetApi</string>
